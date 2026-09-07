@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>NEXO — Sala Multiuso</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--bg:#120407;--panel:#22090d;--panel2:#2d0b12;--line:#54202a;--text:#fff4f5;--muted:#c49aa1;--accent:#ff5364;--accent2:#a71932;--danger:#ff5f6d;--ok:#65e6a8;--shadow:0 20px 60px #000b}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 0,#5a111f 0,#21070d 35%,#080205 100%);color:var(--text)}
+button,input,textarea{font:inherit}button{border:0;cursor:pointer}.hidden{display:none!important}
+#access{min-height:100vh;display:grid;place-items:center;padding:22px}.accessBox{width:min(1100px,100%);display:grid;grid-template-columns:1.05fr .95fr;gap:22px;background:linear-gradient(145deg,#25080dcc,#0f0307dd);border:1px solid #67202e;border-radius:30px;padding:28px;box-shadow:var(--shadow);backdrop-filter:blur(18px)}
+.brand h1{font-size:clamp(42px,7vw,78px);margin:0;letter-spacing:-4px}.brand h1 span{color:var(--accent)}.brand p{color:var(--muted);font-size:18px;line-height:1.55;max-width:600px}.features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px}.feature{background:linear-gradient(145deg,#321019,#1b070c);border:1px solid #57202a;border-radius:16px;padding:14px;color:#ead4d8}.feature b{display:block;color:white;margin-bottom:4px}.accessCard{background:#20080d;border:1px solid #64212d;border-radius:24px;padding:22px}.accessCard h2{margin-top:0}.field{margin:12px 0}.field label{display:block;color:#d0aab0;font-size:13px;margin-bottom:7px}.field input{width:100%;padding:14px 15px;border-radius:13px;border:1px solid #672631;background:#100307;color:white;outline:none}.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #ff536420}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.btn{padding:14px 16px;border-radius:13px;font-weight:800;background:#39101a;color:white;border:1px solid #6c2834}.btn.primary{background:linear-gradient(135deg,#e52f4b,#8f102b);border:0}.btn:hover{filter:brightness(1.1)}.codeBig{font-size:32px;letter-spacing:7px;text-align:center;font-weight:900;padding:18px;background:#100307;border-radius:15px;margin:15px 0}.hint{font-size:12px;color:#bd929b;line-height:1.45}.status{margin-top:12px;min-height:20px;color:#d4aab2;font-size:13px}.status.err{color:#ff9aa4}.status.ok{color:#78f1b5}
+#app{height:100vh;display:grid;grid-template-columns:255px 1fr 300px;overflow:hidden}.sidebar{background:linear-gradient(180deg,#19050a,#0c0205);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:15px}.logo{font-size:25px;font-weight:900;letter-spacing:-1px;padding:8px 9px 18px}.logo span{color:var(--accent)}.roomTag{background:#2a0a11;border:1px solid #57202b;border-radius:14px;padding:12px;margin-bottom:14px}.roomTag small{display:block;color:#aa7d87}.roomTag b{font-size:22px;letter-spacing:3px}.nav{display:grid;gap:6px}.nav button{background:transparent;color:#c19aa2;text-align:left;padding:12px 13px;border-radius:11px;font-weight:700}.nav button.active,.nav button:hover{background:#3a101a;color:white}.sideBottom{margin-top:auto;display:grid;gap:8px}.danger{color:#ff8d98!important}
+.main{min-width:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#19060b,#0d0205)}.topbar{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}.topTitle{font-weight:800}.online{color:var(--ok);font-size:13px}.view{display:none;height:calc(100vh - 64px);overflow:auto;padding:18px}.view.active{display:block}.stage{height:100%;display:flex;flex-direction:column}.videoGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;overflow:auto;align-content:start}.tile{position:relative;aspect-ratio:16/10;background:#050103;border:1px solid #5b202b;border-radius:16px;overflow:hidden}.tile video{width:100%;height:100%;object-fit:cover}.tile .name{position:absolute;left:10px;bottom:9px;background:#000b;padding:6px 9px;border-radius:9px;font-size:12px}.tile.local video{transform:scaleX(-1)}.empty{height:100%;display:grid;place-items:center;color:#9c737c;text-align:center;padding:30px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0}.tool{background:#36101a;color:white;border:1px solid #642532;border-radius:11px;padding:10px 12px}.tool.on{background:#651a2b}.tool.danger{background:#571521}.chat{height:100%;display:grid;grid-template-rows:1fr auto}.messages{overflow:auto;padding:5px}.msg{margin:9px 0;max-width:85%}.msg.me{margin-left:auto;text-align:right}.bubble{display:inline-block;background:#35101a;padding:9px 12px;border-radius:13px;line-height:1.4}.me .bubble{background:#641c2d}.msg small{display:block;color:#a97c85;margin-bottom:3px}.chatForm{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:12px}.chatForm input{flex:1;background:#100307;border:1px solid #642532;border-radius:12px;color:white;padding:12px}.contentBox{display:grid;grid-template-rows:auto 1fr;height:100%;gap:12px}.urlbar{display:flex;gap:8px}.urlbar input{flex:1;background:#100307;color:white;border:1px solid #642532;border-radius:12px;padding:12px}.frameWrap{min-height:0;background:#020101;border:1px solid #57202b;border-radius:16px;overflow:hidden;position:relative}.frameWrap iframe{width:100%;height:100%;border:0}.placeholder{height:100%;display:grid;place-items:center;color:#9d757d;text-align:center}.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}.fileCard{background:#2b0b12;border:1px solid #5c202c;border-radius:14px;padding:12px}.fileCard img,.fileCard video{width:100%;max-height:160px;object-fit:cover;border-radius:9px}.fileCard a{color:#ff9ba8;word-break:break-word}.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.game{background:#2b0b12;border:1px solid #5d202d;border-radius:17px;padding:16px}.game h3{margin-top:0}.quizQ{font-size:19px;font-weight:800;line-height:1.35}.answers{display:grid;gap:8px;margin-top:14px}.answers button{background:#3a101a;color:white;padding:11px;border-radius:10px;text-align:left;border:1px solid #662632}.answers button.correct{background:#165536}.answers button.wrong{background:#65202c}
+.right{background:linear-gradient(180deg,#18050a,#0c0205);border-left:1px solid var(--line);padding:10px;overflow:auto}.right h3{margin:5px 0 10px}.peopleVideos{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}.miniVideo{position:relative;background:#050103;border:1px solid #5a202b;border-radius:10px;overflow:hidden;aspect-ratio:16/11}.miniVideo video{width:100%;height:100%;object-fit:cover}.miniVideo .miniName{position:absolute;left:5px;right:5px;bottom:5px;background:#000b;border-radius:6px;padding:4px;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.peopleList{max-height:30vh;overflow:auto}.person{display:flex;align-items:center;gap:10px;padding:9px;border-radius:12px;background:#270910;margin-bottom:7px}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#d52d4a,#741027);font-weight:900}.person small{display:block;color:#9e747d}.shareBox{margin-top:12px;padding:14px;background:#2a0a11;border:1px solid #54202a;border-radius:14px}.shareBox input{width:100%;background:#100307;border:1px solid #642532;color:white;border-radius:9px;padding:9px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2d0b13;border:1px solid #73303c;padding:11px 15px;border-radius:12px;box-shadow:var(--shadow);z-index:99}.modal{position:fixed;inset:0;background:#000b;display:grid;place-items:center;padding:20px;z-index:80}.modalCard{width:min(520px,100%);background:#260910;border:1px solid #672532;border-radius:20px;padding:22px}.modalCard h2{margin-top:0}
+.cryptoWrap{max-width:1000px;margin:auto}.cryptoHero{background:linear-gradient(145deg,#390d18,#1b050a);border:1px solid #702433;border-radius:20px;padding:18px;margin-bottom:14px}.cryptoGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.cryptoCard{background:#260910;border:1px solid #5f202d;border-radius:17px;padding:16px}.cryptoCard h3{margin-top:0}.cryptoCard input,.cryptoCard select{width:100%;padding:12px;background:#100307;border:1px solid #642532;color:#fff;border-radius:10px;margin:6px 0 10px}.cryptoDrop{border:1px dashed #8b3444;border-radius:12px;padding:20px;text-align:center;margin:10px 0;background:#1b060b}.cryptoPreview{display:none;background:#120307;border:1px solid #54202a;border-radius:12px;padding:12px;margin-top:10px}.cryptoProgress{height:8px;background:#100307;border-radius:20px;overflow:hidden;margin:10px 0}.cryptoProgress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff5364,#a71932);transition:.2s}.secureBadge{display:inline-flex;gap:6px;align-items:center;padding:6px 9px;border-radius:99px;background:#40101b;border:1px solid #762737;color:#ffbac2;font-size:11px}
+@media(max-width:1050px){#app{grid-template-columns:72px 1fr 285px}.sidebar{padding:10px}.logo{font-size:0}.logo:after{content:"T";font-size:25px}.roomTag,.nav button span,.sideBottom span{display:none}.nav button{text-align:center;font-size:18px}}
+@media(max-width:800px){#app{grid-template-columns:72px 1fr}.right{position:fixed;z-index:45;right:0;top:0;bottom:62px;width:min(300px,88vw);transform:translateX(105%);transition:.25s;box-shadow:-15px 0 45px #000b}.right.open{transform:translateX(0)}.peopleVideos{grid-template-columns:repeat(2,1fr)}.cryptoGrid{grid-template-columns:1fr}.peopleToggle{display:block!important}}
+@media(max-width:680px){.accessBox{grid-template-columns:1fr;padding:18px;border-radius:22px}.features{display:none}.actions{grid-template-columns:1fr}.brand p{font-size:15px}.accessCard{padding:17px}#app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:50;bottom:0;left:0;right:0;height:62px;border-right:0;border-top:1px solid var(--line);display:flex;flex-direction:row;padding:6px;background:#0d0205}.logo,.roomTag,.sideBottom{display:none}.nav{display:flex;width:100%;justify-content:space-around}.nav button{padding:8px;font-size:19px}.nav button span{display:none}.main{height:calc(100vh - 62px)}.topbar{height:56px}.view{height:calc(100vh - 118px);padding:10px}.videoGrid{grid-template-columns:repeat(2,1fr);gap:7px}.tile{border-radius:10px}.tile .name{font-size:10px}.codeBig{font-size:25px}.chatForm{padding-bottom:5px}.cryptoGrid{grid-template-columns:1fr}}
+.peopleToggle{display:none;background:#3b101b;color:#fff;border:1px solid #6a2836;border-radius:10px;padding:7px 10px}
+</style>
+</head>
+<body>
+<section id="access">
+  <div class="accessBox">
+    <div class="brand">
+      <h1>TRIFÜL<span>KA</span></h1>
+      <p>Una comunidad privada para conversar, verse, pelear, cahuinear, compartir archivos, mostrar contenido, jugar y trabajar juntos, desde lugares distintos. Creada por jmjc</p>
+      <div class="features">
+        <div class="feature"><b>◉ Video y voz</b>WebRTC entre participantes.</div>
+        <div class="feature"><b>▣ Archivos</b>Previsualización de imágenes y videos.</div>
+        <div class="feature"><b>▶ Contenido</b>YouTube, Vimeo y enlaces web.</div>
+        <div class="feature"><b>⌁ Pantalla</b>Comparte tu pantalla con la sala.</div>
+      </div>
+    </div>
+    <div class="accessCard">
+      <div id="choice">
+        <h2>Entrar a TRIFÜLKA</h2>
+        <p class="hint">Primero elige qué quieres hacer. No necesitas crear cuentas.</p>
+        <div class="actions">
+          <button class="btn primary" id="createBtn">＋ Crear sala</button>
+          <button class="btn" id="joinBtn">↗ Entrar con código</button>
+        </div>
+      </div>
+      <div id="createPanel" class="hidden">
+        <h2>Crear una sala</h2>
+        <div class="field"><label>Tu nombre</label><input id="createName" maxlength="30" placeholder="Ej.: Auka"></div><div class="field"><label>Código que tú inventas (opcional)</label><input id="createCode" maxlength="12" autocomplete="off" placeholder="Ej.: CASA2026" style="text-transform:uppercase;letter-spacing:3px;text-align:center;font-weight:900"></div>
+        <button class="btn primary" style="width:100%" id="makeRoomBtn">Crear mi sala</button>
+        <div id="createdCode" class="hidden">
+          <p class="hint">Tu código de sala es:</p><div class="codeBig" id="roomCodeShow">------</div>
+          <button class="btn" style="width:100%" id="copyCodeBtn">Copiar código</button>
+          <p class="hint" style="margin-top:12px">Envía este código a las personas que quieras invitar. Ellas solo deben elegir «Entrar con código».</p>
+        </div>
+        <div id="createStatus" class="status"></div>
+      </div>
+      <div id="joinPanel" class="hidden">
+        <h2>Entrar a una sala</h2>
+        <div class="field"><label>Tu nombre</label><input id="joinName" maxlength="30" placeholder="Ej.: María"></div>
+        <div class="field"><label>Código de sala</label><input id="joinCode" maxlength="8" autocomplete="off" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-weight:900"></div>
+        <button class="btn primary" style="width:100%" id="enterBtn">Entrar a la sala</button>
+        <div id="joinStatus" class="status"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="logo">NEX<span>O</span></div>
+    <div class="roomTag"><small>SALA</small><b id="sideCode">------</b></div>
+    <nav class="nav">
+      <button class="active" data-view="video">◉ <span>Video</span></button>
+      <button data-view="chat">☵ <span>Chat</span></button>
+      <button data-view="content">▶ <span>Contenido</span></button>
+      <button data-view="files">▣ <span>Archivos</span></button>
+      <button data-view="games">♟ <span>Juegos</span></button>
+      <button data-view="crypto">🔐 <span>KriptoSafe</span></button>
+    </nav>
+    <div class="sideBottom"><button class="btn danger" id="leaveBtn">Salir <span>de la sala</span></button></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div class="topTitle" id="viewTitle">Video y voz</div><div style="display:flex;align-items:center;gap:8px"><button class="peopleToggle" id="peopleToggle">👥</button><div class="online">● <span id="onlineCount">1</span> conectados</div></div></header>
+    <section id="view-video" class="view active">
+      <div class="stage">
+        <div class="videoGrid" id="videoGrid"></div>
+        <div class="toolbar">
+          <button class="tool on" id="micBtn">🎙 Micrófono</button>
+          <button class="tool on" id="camBtn">📷 Cámara</button>
+          <button class="tool" id="screenBtn">▣ Compartir pantalla</button>
+          <button class="tool" id="muteAllBtn">🔇 Silenciarme</button>
+        </div>
+      </div>
+    </section>
+    <section id="view-chat" class="view"><div class="chat"><div class="messages" id="messages"></div><form class="chatForm" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Escribe un mensaje..."><label class="btn" style="padding:10px 12px;display:grid;place-items:center" title="Adjuntar archivo">📎<input type="file" id="chatFileInput" hidden></label><button class="btn primary">Enviar</button></form></div></section>
+    <section id="view-content" class="view"><div class="contentBox"><div class="urlbar"><input id="urlInput" placeholder="Pega un enlace de YouTube, Vimeo o una página web"><button class="btn primary" id="openUrlBtn">Abrir</button><button class="btn" id="fullContentBtn">⛶</button></div><div class="frameWrap" id="frameWrap"><div class="placeholder" id="framePlaceholder">Comparte un enlace para verlo aquí.</div><iframe id="contentFrame" class="hidden" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe></div></div></section>
+    <section id="view-files" class="view"><div class="toolbar"><label class="btn primary">＋ Compartir archivo<input type="file" id="fileInput" hidden></label></div><p class="hint">Los archivos se envían por WebRTC en pequeños bloques. Las imágenes y videos se pueden previsualizar.</p><div class="files" id="files"></div></section>
+    <section id="view-crypto" class="view">
+<div class="cryptoWrap">
+  <div class="cryptoHero">
+    <span class="secureBadge">🔐 CIFRADO AES-GCM · P2P</span>
+    <h2 style="margin:10px 0 6px">KriptoSafe — transferencia privada</h2>
+    <p class="hint">Los archivos se cifran en tu navegador antes de salir de tu dispositivo. La sala transporta solo el paquete cifrado. Para abrirlo, cada participante necesita la misma contraseña.</p>
+  </div>
+  <div class="cryptoGrid">
+    <div class="cryptoCard">
+      <h3>🔒 Enviar archivo cifrado</h3>
+      <div class="cryptoDrop">
+        <label class="btn primary" style="display:inline-block">Seleccionar archivo
+          <input type="file" id="cryptoFile" hidden>
+        </label>
+        <div id="cryptoFileName" class="hint" style="margin-top:10px">Máximo 50 MB</div>
+      </div>
+      <input type="password" id="cryptoPassword" placeholder="Contraseña de cifrado">
+      <button class="btn primary" id="cryptoSendBtn" style="width:100%">Cifrar y transferir</button>
+      <div class="cryptoProgress"><i id="cryptoProgress"></i></div>
+      <div class="status" id="cryptoSendStatus"></div>
+    </div>
+    <div class="cryptoCard">
+      <h3>🔓 Recibir y descifrar</h3>
+      <p class="hint">Selecciona un paquete .kripto descargado o recibido, o utiliza uno de los paquetes de la sala.</p>
+      <input type="password" id="cryptoDecryptPassword" placeholder="Contraseña para descifrar">
+      <label class="btn" style="display:block;text-align:center">Abrir paquete .kripto
+        <input type="file" id="cryptoPackageFile" accept=".kripto,.json,application/json" hidden>
+      </label>
+      <div id="cryptoInbox"></div>
+      <div class="cryptoPreview" id="cryptoPreview"></div>
+      <div class="status" id="cryptoDecryptStatus"></div>
+    </div>
+  </div>
+</div>
+</section>
+<section id="view-games" class="view"><div class="games"><div class="game"><h3>⚡ Trivia de la sala</h3><p class="hint">El anfitrión lanza una pregunta y todos responden. El marcador se comparte.</p><button class="btn primary" id="newQuestionBtn">Nueva pregunta</button><div id="quizArea" style="margin-top:14px"></div><div id="scoreArea" style="margin-top:14px"></div></div><div class="game"><h3>🎲 Dado rápido</h3><p class="hint">Todos pueden lanzar un dado. El resultado se anuncia a la sala.</p><button class="btn primary" id="rollBtn">Lanzar dado</button><div id="diceResult" style="font-size:46px;font-weight:900;text-align:center;padding:20px">—</div></div></div></section>
+  </main>
+  <aside class="right" id="rightPanel">
+    <h3>Personas y video</h3><div class="peopleVideos" id="participantVideos"></div><div class="peopleList" id="people"></div>
+    <div class="shareBox"><b>Invitar</b><p class="hint">Comparte este código:</p><input id="inviteCode" readonly><button class="btn" style="width:100%;margin-top:8px" id="copyInvite">Copiar código</button></div>
+    <div class="shareBox"><b>Estado</b><p class="hint" id="connectionInfo">Conectando…</p></div>
+  </aside>
+</section>
+<div id="toast" class="toast hidden"></div>
+<div id="modal" class="modal hidden"><div class="modalCard"><h2 id="modalTitle"></h2><div id="modalBody"></div><div style="margin-top:15px;text-align:right"><button class="btn" id="modalClose">Cerrar</button></div></div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const state={
+  code:"",name:"",isHost:false,peer:null,hostConn:null,hostId:"",
+  localStream:null,participants:new Map(),dataConns:new Map(),calls:new Map(),
+  transfers:new Map(),question:null,scores:{},roomEpoch:0,migrating:false,
+  cryptoTransfers:new Map(),cryptoInbox:new Map()
+};
+const ICE={iceServers:[
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun.cloudflare.com:3478"}
+]};
+const CHARS="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function codeGen(){let s="";for(let i=0;i<6;i++)s+=CHARS[Math.floor(Math.random()*CHARS.length)];return s}
+function normalizeCode(c){return String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12)}
+function hostId(code){return "trifulkahost"+normalizeCode(code)}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function toast(t){$("toast").textContent=t;$("toast").classList.remove("hidden");clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").classList.add("hidden"),2800)}
+function status(id,t,err=false){$(id).textContent=t;$(id).className="status "+(err?"err":"ok")}
+function showPanel(p){["choice","createPanel","joinPanel"].forEach(x=>$(x).classList.add("hidden"));$(p).classList.remove("hidden")}
+function formatBytes(n){if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";if(n<1073741824)return (n/1048576).toFixed(1)+" MB";return (n/1073741824).toFixed(1)+" GB"}
+function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()}
+
+$("createBtn").onclick=()=>showPanel("createPanel");
+$("joinBtn").onclick=()=>showPanel("joinPanel");
+
+async function startLocalMedia(){
+  if(!navigator.mediaDevices?.getUserMedia)return null;
+  try{return await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:"user"},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){try{return await navigator.mediaDevices.getUserMedia({video:false,audio:true})}
+  catch(e2){toast("Cámara/micrófono no disponibles. Puedes seguir con chat, archivos y contenido.");return null}}
+}
+
+function setupPeer(p){
+  state.peer=p;
+  p.on("error",e=>{
+    console.error(e);
+    if(e.type==="peer-unavailable"){
+      if(!state.isHost)status("joinStatus","No encontramos la sala. Comprueba el código y que algún participante siga conectado.",true);
+    }else if(e.type==="unavailable-id"){
+      if(state.isHost)status("createStatus","El código está ocupado. Prueba otro.",true);
+      else toast("Identificador ocupado. Reintentando conexión…");
+    }else if(e.type==="network")toast("Problema de red. Intentando mantener la conexión.");
+    else toast("Conexión: "+e.type);
+  });
+  p.on("disconnected",()=>{
+    $("connectionInfo").textContent="Señalización interrumpida; intentando reconectar…";
+    setTimeout(()=>{try{if(p&&!p.destroyed)p.reconnect()}catch{}},1500);
+  });
+  p.on("open",id=>{if(!state.isHost)$("connectionInfo").textContent="Conectado · "+id.slice(0,8)});
+  p.on("call",call=>{
+    state.calls.set(call.peer,call);
+    call.answer(state.localStream||undefined);
+    call.on("stream",s=>renderRemote(call.peer,s));
+    call.on("close",()=>removeRemote(call.peer));
+    call.on("error",()=>removeRemote(call.peer));
+  });
+  p.on("connection",conn=>handleDataConn(conn,true));
+}
+
+function handleDataConn(conn,incoming=false){
+  const old=state.dataConns.get(conn.peer);
+  if(old&&old!==conn){try{old.close()}catch{}}
+  state.dataConns.set(conn.peer,conn);
+  conn.on("open",()=>{
+    if(!state.isHost && conn.peer===state.hostId){
+      state.hostConn=conn;
+      $("connectionInfo").textContent="Conectado a la sala";
+      conn.send({type:"hello",name:state.name});
+    }
+  });
+  conn.on("data",msg=>handleMessage(msg,conn));
+  conn.on("close",()=>{
+    state.dataConns.delete(conn.peer);
+    if(conn===state.hostConn) handleHostLoss();
+    if(state.isHost){
+      state.participants.delete(conn.peer);broadcastParticipants();renderPeople();updateOnline();removeRemote(conn.peer);removeMiniVideo(conn.peer);
+    }
+  });
+  conn.on("error",()=>{});
+}
+function sendToHost(msg){if(state.hostConn?.open)state.hostConn.send(msg);else toast("La conexión con el coordinador se está recuperando.")}
+function broadcast(msg,except=null){for(const [id,c] of state.dataConns){if(id!==except&&c.open)try{c.send(msg)}catch{}}}
+
+function participantList(){
+  return [...state.participants].map(([id,p])=>({id,name:p.name||"Invitado"}));
+}
+function broadcastParticipants(){
+  const list=participantList();
+  broadcast({type:"participants",list,hostId:state.peer?.id});
+  renderPeople();updateOnline();syncCalls();
+}
+function sendFullStateTo(conn){
+  try{conn.send({type:"welcome",you:conn.peer,list:participantList(),hostId:state.peer.id})}catch{}
+}
+
+function handleMessage(msg,conn){
+  if(!msg||!msg.type)return;
+  if(state.isHost){
+    if(msg.type==="hello"){
+      state.participants.set(conn.peer,{name:(msg.name||"Invitado").slice(0,30)});
+      sendFullStateTo(conn);broadcastParticipants();return;
+    }
+    if(msg.type==="hostStateRequest"){sendFullStateTo(conn);return}
+    if(["chat","content","dice","quiz","quizAnswer","fileMeta","fileChunk","fileDone","cryptoMeta","cryptoChunk","cryptoDone"].includes(msg.type)){
+      broadcast(msg,conn.peer);processMessage(msg,conn);return;
+    }
+  }else{
+    if(msg.type==="welcome"||msg.type==="participants"){
+      state.hostId=msg.hostId||state.hostId;
+      state.participants.clear();(msg.list||[]).forEach(p=>state.participants.set(p.id,p));
+      if(state.peer?.id)state.participants.set(state.peer.id,{name:state.name});
+      renderPeople();updateOnline();syncCalls();return;
+    }
+    if(msg.type==="hostChanged"){
+      state.hostId=msg.hostId;
+      $("connectionInfo").textContent="Nuevo coordinador: "+(msg.name||"participante");
+      reconnectToHost();return;
+    }
+    processMessage(msg,conn);
+  }
+}
+function processMessage(msg,conn){
+  if(msg.type==="chat"){
+    if(msg.fileRef)addChatFileCard(msg.fileRef,msg.name,msg.id===state.peer?.id);
+    else addMessage(msg.name,msg.text,msg.id===state.peer?.id);
+  }
+  if(msg.type==="content")openContent(msg.url,false);
+  if(msg.type==="dice"){$("diceResult").textContent="🎲 "+msg.value;addMessage("Sala","🎲 "+msg.name+" lanzó "+msg.value,false)}
+  if(msg.type==="quiz")showQuestion(msg.question,msg.answers,msg.correct,msg.hostId);
+  if(msg.type==="quizAnswer")updateScore(msg.name,msg.correct);
+  if(msg.type==="fileMeta")receiveFileMeta(msg);
+  if(msg.type==="fileChunk")receiveFileChunk(msg);
+  if(msg.type==="fileDone")receiveFileDone(msg);
+  if(msg.type==="cryptoMeta")receiveCryptoMeta(msg);
+  if(msg.type==="cryptoChunk")receiveCryptoChunk(msg);
+  if(msg.type==="cryptoDone")receiveCryptoDone(msg);
+}
+function addMessage(name,text,me=false){
+  const d=document.createElement("div");d.className="msg"+(me?" me":"");
+  d.innerHTML="<small>"+esc(name)+"</small><div class='bubble'>"+esc(text)+"</div>";
+  $("messages").appendChild(d);$("messages").scrollTop=$("messages").scrollHeight;
+}
+
+function renderPeople(){
+  const box=$("people");box.innerHTML="";
+  const arr=[...state.participants.values()];
+  if(state.peer?.id&&!state.participants.has(state.peer.id))arr.push({id:state.peer.id,name:state.name});
+  arr.forEach(p=>{
+    const d=document.createElement("div");d.className="person";
+    d.innerHTML="<div class='avatar'>"+esc((p.name||"?")[0].toUpperCase())+"</div><div><b>"+esc(p.name||"Invitado")+"</b><small>"+(p.id===state.peer?.id?"Tú":(p.id===state.hostId?"Coordinador":"Conectado"))+"</small></div>";
+    box.appendChild(d)
+  });
+  renderMiniVideos();
+}
+function updateOnline(){$("onlineCount").textContent=Math.max(1,state.participants.size)}
+function renderMiniVideos(){
+  const box=$("participantVideos");if(!box)return;box.innerHTML="";
+  if(state.localStream)addMiniVideo("local",state.localStream,state.name+" · tú",true);
+  for(const [id,c] of state.calls){
+    if(c.remoteStream)addMiniVideo(id,c.remoteStream,state.participants.get(id)?.name||"Invitado",false);
+  }
+}
+function addMiniVideo(id,stream,name,local=false){
+  const key="mini-"+id;
+  if($(key)){$(key).querySelector("video").srcObject=stream;return}
+  const d=document.createElement("div");d.className="miniVideo";d.id=key;
+  d.innerHTML="<video autoplay playsinline "+(local?"muted":"")+"></video><div class='miniName'>"+esc(name)+"</div>";
+  d.querySelector("video").srcObject=stream;$("participantVideos").appendChild(d);
+}
+function removeMiniVideo(id){$("mini-"+CSS.escape(id))?.remove()}
+function renderLocal(){
+  const grid=$("videoGrid");grid.innerHTML="";
+  const tile=document.createElement("div");tile.className="tile local";tile.id="tile-local";
+  if(state.localStream){tile.innerHTML="<video autoplay playsinline muted></video><div class='name'>"+esc(state.name)+" · tú</div>";tile.querySelector("video").srcObject=state.localStream}
+  else tile.innerHTML="<div class='empty'>Sin cámara/micrófono<br>La sala sigue disponible.</div>";
+  grid.appendChild(tile);renderMiniVideos();
+}
+function renderRemote(id,stream){
+  let tile=document.getElementById("tile-"+id);
+  if(!tile){tile=document.createElement("div");tile.className="tile";tile.id="tile-"+id;tile.innerHTML="<video autoplay playsinline></video><div class='name'></div>";$("videoGrid").appendChild(tile)}
+  tile.querySelector(".name").textContent=state.participants.get(id)?.name||"Invitado";
+  tile.querySelector("video").srcObject=stream;
+  const call=state.calls.get(id);if(call)call.remoteStream=stream;
+  addMiniVideo(id,stream,state.participants.get(id)?.name||"Invitado");
+}
+function removeRemote(id){$("tile-"+CSS.escape(id))?.remove();removeMiniVideo(id);const c=state.calls.get(id);if(c)try{c.close()}catch{}state.calls.delete(id)}
+function syncCalls(){
+  if(!state.peer||!state.localStream)return;
+  for(const [id] of state.participants){
+    if(id===state.peer.id)continue;
+    if(state.peer.id<id && !state.calls.has(id)){
+      const call=state.peer.call(id,state.localStream,{metadata:{name:state.name}});
+      state.calls.set(id,call);
+      call.on("stream",s=>renderRemote(id,s));call.on("close",()=>removeRemote(id));call.on("error",()=>removeRemote(id));
+    }
+  }
+}
+async function initHost(code,name){
+  state.code=normalizeCode(code);state.name=name;state.isHost=true;state.hostId=hostId(state.code);state.migrating=false;
+  status("createStatus","Creando sala…");
+  const p=new Peer(state.hostId,{debug:0,config:ICE});
+  setupPeer(p);
+  p.on("open",async()=>{
+    state.localStream=await startLocalMedia();
+    state.participants.set(p.id,{name});
+    $("roomCodeShow").textContent=state.code;$("createdCode").classList.remove("hidden");
+    status("createStatus","Sala creada. El código queda disponible para todos.");
+    enterApp();
+  });
+}
+async function initGuest(code,name){
+  state.code=normalizeCode(code);state.name=name;state.isHost=false;state.hostId=hostId(state.code);
+  status("joinStatus","Buscando la sala…");
+  const p=new Peer(undefined,{debug:0,config:ICE});setupPeer(p);
+  p.on("open",async()=>{
+    state.localStream=await startLocalMedia();
+    connectHost(state.hostId);
+  });
+}
+function connectHost(target){
+  if(!state.peer||state.peer.destroyed)return;
+  const c=state.peer.connect(target,{reliable:true,serialization:"binary"});
+  state.hostConn=c;state.hostId=target;handleDataConn(c,false);
+  c.on("open",()=>{c.send({type:"hello",name:state.name});enterApp()});
+  c.on("error",()=>{});
+  setTimeout(()=>{if(!c.open&&!state.isHost)status("joinStatus","La sala no responde. Comprueba el código.",true)},6500);
+}
+function reconnectToHost(){
+  if(state.isHost||!state.hostId||state.migrating)return;
+  try{state.hostConn?.close()}catch{}
+  setTimeout(()=>connectHost(state.hostId),700);
+}
+function handleHostLoss(){
+  if(state.isHost||state.migrating)return;
+  state.hostConn=null;
+  $("connectionInfo").textContent="El coordinador salió. Buscando nuevo coordinador…";
+  const candidates=[...state.participants.keys()].filter(id=>id!==state.peer?.id&&id!==state.hostId).sort();
+  const winner=candidates[0];
+  if(!winner){
+    promoteSelfToHost();
+    return;
+  }
+  if(state.peer?.id===winner)promoteSelfToHost();
+  else{
+    setTimeout(()=>{if(!state.hostConn?.open)reconnectToHost()},1200);
+  }
+}
+async function promoteSelfToHost(){
+  if(state.isHost||state.migrating)return;
+  state.migrating=true;
+  $("connectionInfo").textContent="Asumiendo la coordinación de la sala…";
+  try{state.peer?.destroy()}catch{}
+  await new Promise(r=>setTimeout(r,900));
+  const p=new Peer(hostId(state.code),{debug:0,config:ICE});
+  state.isHost=true;state.hostId=p.id;state.peer=p;setupPeer(p);
+  p.on("open",async()=>{
+    state.localStream=state.localStream||await startLocalMedia();
+    const old=[...state.participants];
+    state.participants.clear();state.participants.set(p.id,{name:state.name});
+    old.forEach(([id,pinfo])=>{if(id!==p.id)state.participants.set(id,pinfo)});
+    state.migrating=false;
+    $("connectionInfo").textContent="Coordinador nuevo. La sala continúa abierta.";
+    broadcastParticipants();
+    renderPeople();updateOnline();syncCalls();
+    toast("La sala continúa: ahora tú eres el coordinador.");
+  });
+  p.on("error",e=>{
+    if(e.type==="unavailable-id"){state.migrating=false;state.isHost=false;setTimeout(()=>promoteSelfToHost(),2200)}
+  });
+}
+
+$("makeRoomBtn").onclick=()=>{
+  const name=$("createName").value.trim()||"Anfitrión";
+  const code=normalizeCode($("createCode")?.value)||codeGen();
+  if(code.length<4){status("createStatus","El código debe tener al menos 4 caracteres.",true);return}
+  initHost(code,name);
+};
+$("enterBtn").onclick=()=>{
+  const name=$("joinName").value.trim()||"Invitado";
+  const code=normalizeCode($("joinCode").value);
+  if(code.length<4){status("joinStatus","El código no es válido.",true);return}
+  initGuest(code,name);
+};
+$("copyCodeBtn").onclick=()=>navigator.clipboard?.writeText(state.code).then(()=>toast("Código copiado"));
+$("copyInvite").onclick=()=>navigator.clipboard?.writeText(state.code).then(()=>toast("Código copiado"));
+
+function enterApp(){
+  $("access").classList.add("hidden");$("app").classList.remove("hidden");
+  $("sideCode").textContent=state.code;$("inviteCode").value=state.code;
+  $("connectionInfo").textContent=state.isHost?"Sala creada; coordinador activo":"Conectado";
+  renderLocal();renderPeople();updateOnline();
+}
+const titles={video:"Video y voz",chat:"Chat",content:"Contenido compartido",files:"Archivos",games:"Juegos",crypto:"KriptoSafe · Transferencia cifrada"};
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  $("view-"+b.dataset.view).classList.add("active");$("viewTitle").textContent=titles[b.dataset.view];
+});
+$("peopleToggle").onclick=()=>$("rightPanel").classList.toggle("open");
+
+$("micBtn").onclick=()=>{const t=state.localStream?.getAudioTracks()[0];if(!t)return toast("No hay micrófono disponible");t.enabled=!t.enabled;$("micBtn").classList.toggle("on",t.enabled);$("micBtn").textContent=t.enabled?"🎙 Micrófono":"🔇 Micrófono apagado"};
+$("camBtn").onclick=()=>{const t=state.localStream?.getVideoTracks()[0];if(!t)return toast("No hay cámara disponible");t.enabled=!t.enabled;$("camBtn").classList.toggle("on",t.enabled);$("camBtn").textContent=t.enabled?"📷 Cámara":"🚫 Cámara apagada"};
+$("muteAllBtn").onclick=()=>{const t=state.localStream?.getAudioTracks()[0];if(t){t.enabled=false;$("micBtn").classList.remove("on");$("micBtn").textContent="🔇 Micrófono apagado"}};
+$("screenBtn").onclick=async()=>{
+  if(!navigator.mediaDevices?.getDisplayMedia)return toast("Tu navegador no permite compartir pantalla.");
+  try{
+    const screen=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true}),track=screen.getVideoTracks()[0];
+    for(const call of state.calls.values()){const sender=call.peerConnection?.getSenders?.().find(s=>s.track?.kind==="video");if(sender)await sender.replaceTrack(track)}
+    const local=$("tile-local video");if(local)local.srcObject=new MediaStream([track,...(state.localStream?.getAudioTracks()||[])]);
+    track.onended=async()=>{const cam=state.localStream?.getVideoTracks()[0];for(const call of state.calls.values()){const sender=call.peerConnection?.getSenders?.().find(s=>s.track?.kind==="video");if(sender&&cam)await sender.replaceTrack(cam)}renderLocal()};
+    toast("Compartiendo pantalla");
+  }catch{toast("Compartir pantalla cancelado")}
+};
+
+$("chatForm").onsubmit=e=>{
+  e.preventDefault();const text=$("chatInput").value.trim();if(!text)return;
+  const msg={type:"chat",name:state.name,text,id:state.peer.id};addMessage(state.name,text,true);$("chatInput").value="";
+  state.isHost?broadcast(msg):sendToHost(msg);
+};
+$("chatFileInput").onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  await sendRegularFile(file,true);e.target.value="";
+};
+async function sendRegularFile(file,fromChat=false){
+  if(file.size>100*1024*1024)return toast("Máximo 100 MB por archivo.");
+  const id=uid(),meta={type:"fileMeta",id,name:file.name,size:file.size,mime:file.type,from:state.name,fromChat};
+  if(state.isHost)broadcast(meta);else sendToHost(meta);
+  const CHUNK=48*1024;let offset=0;
+  while(offset<file.size){const buf=await file.slice(offset,offset+CHUNK).arrayBuffer();const msg={type:"fileChunk",id,index:Math.floor(offset/CHUNK),data:buf};if(state.isHost)broadcast(msg);else sendToHost(msg);offset+=buf.byteLength;await new Promise(r=>setTimeout(r,2))}
+  const done={type:"fileDone",id};if(state.isHost)broadcast(done);else sendToHost(done);
+  addFileCard(file.name,file.type,file.size,file);
+  if(fromChat)addChatFileCard({name:file.name,mime:file.type,size:file.size,blob:file},state.name,true);
+  toast("Archivo enviado a la sala");
+}
+function receiveFileMeta(m){state.transfers.set(m.id,{...m,chunks:[],received:0})}
+function receiveFileChunk(m){const t=state.transfers.get(m.id);if(!t)return;t.chunks[m.index]=m.data;t.received+=m.data.byteLength}
+function receiveFileDone(m){
+  const t=state.transfers.get(m.id);if(!t)return;
+  const blob=new Blob(t.chunks,{type:t.mime});addFileCard(t.name,t.mime,t.size,blob);
+  if(t.fromChat)addChatFileCard({name:t.name,mime:t.mime,size:t.size,blob},t.from,false);
+  state.transfers.delete(m.id);
+}
+function addFileCard(name,mime,size,data){
+  const card=document.createElement("div");card.className="fileCard";const url=URL.createObjectURL(data instanceof Blob?data:new Blob([data],{type:mime}));
+  let visual="";if(mime?.startsWith("image/"))visual="<img src='"+url+"' alt=''>";else if(mime?.startsWith("video/"))visual="<video src='"+url+"' controls></video>";else if(mime?.startsWith("audio/"))visual="<audio src='"+url+"' controls style='width:100%'></audio>";
+  card.innerHTML=visual+"<b>"+esc(name)+"</b><p class='hint'>"+formatBytes(size)+"</p><a href='"+url+"' download='"+esc(name)+"'>Descargar</a>";
+  $("files").prepend(card);
+}
+function addChatFileCard(info,from,me){
+  const d=document.createElement("div");d.className="msg"+(me?" me":"");
+  const url=URL.createObjectURL(info.blob instanceof Blob?info.blob:new Blob([info.blob],{type:info.mime}));
+  let visual="";if(info.mime?.startsWith("image/"))visual="<img src='"+url+"' style='max-width:280px;max-height:180px;border-radius:10px;display:block;margin-top:5px'>";else if(info.mime?.startsWith("video/"))visual="<video src='"+url+"' controls style='max-width:280px;max-height:180px;border-radius:10px;display:block;margin-top:5px'></video>";else if(info.mime?.startsWith("audio/"))visual="<audio src='"+url+"' controls style='max-width:280px;margin-top:5px'></audio>";
+  d.innerHTML="<small>"+esc(from||"Sala")+"</small><div class='bubble'>📎 <b>"+esc(info.name)+"</b><br><span class='hint'>"+formatBytes(info.size)+"</span>"+visual+"<br><a href='"+url+"' download='"+esc(info.name)+"' style='color:#ff9ba8'>Descargar</a></div>";
+  $("messages").appendChild(d);$("messages").scrollTop=$("messages").scrollHeight;
+}
+
+function youtubeId(url){try{const u=new URL(url);if(u.hostname.includes("youtu.be"))return u.pathname.slice(1);if(u.hostname.includes("youtube.com"))return u.searchParams.get("v")||u.pathname.split("/").pop()}catch{}return null}
+function contentUrl(url){const id=youtubeId(url);if(id)return "https://www.youtube.com/embed/"+id+"?autoplay=1&rel=0";try{const u=new URL(url);if(u.hostname.includes("vimeo.com")){const id=u.pathname.split("/").filter(Boolean).pop();if(/^\d+$/.test(id))return "https://player.vimeo.com/video/"+id+"?autoplay=1"}return u.href}catch{return null}}
+function openContent(url,send=true){const frame=contentUrl(url);if(!frame)return toast("Enlace no válido.");$("framePlaceholder").classList.add("hidden");$("contentFrame").classList.remove("hidden");$("contentFrame").src=frame;if(send){const msg={type:"content",url};state.isHost?broadcast(msg):sendToHost(msg)}}
+$("openUrlBtn").onclick=()=>openContent($("urlInput").value.trim(),true);$("urlInput").onkeydown=e=>{if(e.key==="Enter")openContent($("urlInput").value.trim(),true)};$("fullContentBtn").onclick=()=>$("frameWrap").requestFullscreen?.();
+
+$("rollBtn").onclick=()=>{const value=1+Math.floor(Math.random()*6);$("diceResult").textContent="🎲 "+value;const msg={type:"dice",value,name:state.name};state.isHost?broadcast(msg):sendToHost(msg);addMessage("Sala","🎲 "+state.name+" lanzó "+value,true)};
+const QUESTIONS=[{q:"¿Cuál es la capital de Chile?",a:["Santiago","Valparaíso","Concepción","Temuco"],c:0},{q:"¿Qué planeta es conocido como el planeta rojo?",a:["Venus","Marte","Júpiter","Mercurio"],c:1},{q:"¿Cuál es el océano más grande?",a:["Atlántico","Índico","Pacífico","Ártico"],c:2},{q:"¿Cuántos lados tiene un hexágono?",a:["5","6","7","8"],c:1},{q:"¿En qué continente está Egipto?",a:["Asia","Europa","África","Oceanía"],c:2}];
+function startQuiz(){if(!state.isHost)return toast("Solo el coordinador puede lanzar una pregunta.");const q=QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];state.question=q;state.scores={};const msg={type:"quiz",question:q.q,answers:q.a,correct:q.c,hostId:state.peer.id};showQuestion(q.q,q.a,q.c,state.peer.id);broadcast(msg)}
+$("newQuestionBtn").onclick=startQuiz;
+function showQuestion(q,answers,correct,hostId){state.question={q,answers,correct,hostId};const area=$("quizArea");area.innerHTML="<div class='quizQ'>"+esc(q)+"</div><div class='answers'>"+answers.map((a,i)=>"<button data-i='"+i+"'>"+esc(a)+"</button>").join("")+"</div>";area.querySelectorAll("button").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===correct;b.classList.add(ok?"correct":"wrong");area.querySelectorAll("button").forEach(x=>x.disabled=true);const msg={type:"quizAnswer",name:state.name,correct:ok};if(state.isHost)updateScore(state.name,ok);else sendToHost(msg)})}
+function updateScore(name,correct){state.scores[name]=(state.scores[name]||0)+(correct?1:0);$("scoreArea").innerHTML="<b>Marcador</b><br>"+Object.entries(state.scores).sort((a,b)=>b[1]-a[1]).map(x=>esc(x[0])+": "+x[1]).join(" · ")}
+
+let cryptoSelectedFile=null;
+$("cryptoFile").onchange=e=>{cryptoSelectedFile=e.target.files[0]||null;$("cryptoFileName").textContent=cryptoSelectedFile?cryptoSelectedFile.name+" · "+formatBytes(cryptoSelectedFile.size):"Máximo 50 MB"};
+async function deriveCryptoKey(password,salt){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+function b64(buf){let bytes=new Uint8Array(buf),bin="";const step=0x8000;for(let i=0;i<bytes.length;i+=step)bin+=String.fromCharCode(...bytes.subarray(i,i+step));return btoa(bin)}
+function fromB64(s){const bin=atob(s),out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out.buffer}
+function cryptoPacketToBlob(packet){return new Blob([JSON.stringify(packet)],{type:"application/json"})}
+function cryptoPackageDownload(packet){
+  const blob=cryptoPacketToBlob(packet),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=(packet.name||"archivo")+".kripto";a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+$("cryptoSendBtn").onclick=async()=>{
+  const file=cryptoSelectedFile,pwd=$("cryptoPassword").value;
+  if(!file)return status("cryptoSendStatus","Selecciona un archivo.",true);
+  if(file.size>50*1024*1024)return status("cryptoSendStatus","El archivo supera 50 MB.",true);
+  if(!pwd||pwd.length<4)return status("cryptoSendStatus","Usa una contraseña de al menos 4 caracteres.",true);
+  try{
+    status("cryptoSendStatus","Cifrando localmente…");$("cryptoProgress").style.width="8%";
+    const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await deriveCryptoKey(pwd,salt);
+    const plain=await file.arrayBuffer();$("cryptoProgress").style.width="35%";
+    const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,plain);$("cryptoProgress").style.width="65%";
+    const bytes=new Uint8Array(cipher),id=uid();
+    const meta={type:"cryptoMeta",id,name:file.name,size:file.size,mime:file.type,salt:b64(salt),iv:b64(iv),total:bytes.byteLength,from:state.name};
+    if(state.isHost)broadcast(meta);else sendToHost(meta);
+    const CHUNK=48*1024;
+    for(let off=0,index=0;off<bytes.byteLength;off+=CHUNK,index++){
+      const chunk=bytes.slice(off,off+CHUNK).buffer;const msg={type:"cryptoChunk",id,index,data:chunk};
+      if(state.isHost)broadcast(msg);else sendToHost(msg);
+      $("cryptoProgress").style.width=(65+30*Math.min(1,(off+CHUNK)/bytes.byteLength))+"%";await new Promise(r=>setTimeout(r,2));
+    }
+    const done={type:"cryptoDone",id};if(state.isHost)broadcast(done);else sendToHost(done);
+    const packet={format:"KRIPTOSAFE-AESGCM-1",name:file.name,size:file.size,mime:file.type,salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)};
+    addCryptoInbox(packet,state.name,true);cryptoPackageDownload(packet);
+    $("cryptoProgress").style.width="100%";status("cryptoSendStatus","Cifrado y transferido. También se generó un paquete .kripto.");
+    $("cryptoPassword").value="";
+  }catch(e){console.error(e);status("cryptoSendStatus","No se pudo cifrar el archivo: "+e.message,true)}
+};
+function receiveCryptoMeta(m){state.cryptoTransfers.set(m.id,{...m,chunks:[],received:0})}
+function receiveCryptoChunk(m){const t=state.cryptoTransfers.get(m.id);if(!t)return;t.chunks[m.index]=m.data;t.received+=m.data.byteLength}
+function receiveCryptoDone(m){
+  const t=state.cryptoTransfers.get(m.id);if(!t)return;
+  const cipher=new Uint8Array(t.chunks.reduce((n,x)=>n+(x?.byteLength||0),0));let off=0;
+  for(const c of t.chunks){if(!c)continue;cipher.set(new Uint8Array(c),off);off+=c.byteLength}
+  const packet={format:"KRIPTOSAFE-AESGCM-1",name:t.name,size:t.size,mime:t.mime,salt:t.salt,iv:t.iv,ciphertext:b64(cipher.buffer)};
+  addCryptoInbox(packet,t.from,false);state.cryptoTransfers.delete(m.id);
+}
+function addCryptoInbox(packet,from,me){
+  const id=uid();state.cryptoInbox.set(id,packet);
+  const d=document.createElement("div");d.className="fileCard";d.style.marginTop="8px";
+  d.innerHTML="<b>🔐 "+esc(packet.name)+"</b><p class='hint'>"+formatBytes(packet.size)+" · enviado por "+esc(from||"Sala")+"</p><button class='btn primary' style='width:100%' data-crypto-id='"+id+"'>Descifrar y previsualizar</button><button class='btn' style='width:100%;margin-top:6px' data-save-id='"+id+"'>Guardar paquete .kripto</button>";
+  $("cryptoInbox").prepend(d);
+  d.querySelector("[data-crypto-id]").onclick=()=>decryptCryptoPacket(id);
+  d.querySelector("[data-save-id]").onclick=()=>cryptoPackageDownload(packet);
+  $("view-crypto").scrollTop=0;
+}
+$("cryptoPackageFile").onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  try{const packet=JSON.parse(await file.text());if(packet.format!=="KRIPTOSAFE-AESGCM-1")throw Error("Formato no reconocido");addCryptoInbox(packet,"paquete local",true);status("cryptoDecryptStatus","Paquete cargado. Ingresa la contraseña y pulsa descifrar.",false)}
+  catch(err){status("cryptoDecryptStatus","Paquete inválido.",true)}
+};
+async function decryptCryptoPacket(id){
+  const packet=state.cryptoInbox.get(id),pwd=$("cryptoDecryptPassword").value;
+  if(!packet||!pwd)return status("cryptoDecryptStatus","Selecciona un paquete e ingresa la contraseña.",true);
+  try{
+    status("cryptoDecryptStatus","Descifrando…");
+    const key=await deriveCryptoKey(pwd,new Uint8Array(fromB64(packet.salt)));
+    const plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:new Uint8Array(fromB64(packet.iv))},key,fromB64(packet.ciphertext));
+    const blob=new Blob([plain],{type:packet.mime||"application/octet-stream"}),url=URL.createObjectURL(blob);
+    const box=$("cryptoPreview");box.style.display="block";
+    let visual="";if(packet.mime?.startsWith("image/"))visual="<img src='"+url+"' style='max-width:100%;max-height:300px;border-radius:10px'>";else if(packet.mime?.startsWith("video/"))visual="<video src='"+url+"' controls style='width:100%;max-height:300px'></video>";else if(packet.mime?.startsWith("audio/"))visual="<audio src='"+url+"' controls style='width:100%'></audio>";
+    box.innerHTML="<b>✓ Archivo descifrado:</b> "+esc(packet.name)+visual+"<div style='margin-top:10px'><a class='btn primary' style='display:block;text-align:center;text-decoration:none' href='"+url+"' download='"+esc(packet.name)+"'>Descargar archivo</a></div>";
+    status("cryptoDecryptStatus","Descifrado correcto. La contraseña no se transmite a la sala.");
+  }catch(e){status("cryptoDecryptStatus","Contraseña incorrecta o paquete dañado.",true)}
+}
+
+$("leaveBtn").onclick=async()=>{
+  const ok=confirm(state.isHost?"¿Quieres salir de la sala? Los demás participantes continuarán conectados y uno de ellos asumirá automáticamente la coordinación.":"¿Quieres salir de esta sala?");
+  if(!ok)return;
+  if(state.isHost){
+    const candidates=[...state.participants.keys()].filter(id=>id!==state.peer?.id&&id!==state.hostId).sort();
+    if(candidates.length){
+      const next=candidates[0],nextName=state.participants.get(next)?.name||"participante";
+      broadcast({type:"hostChanged",hostId:hostId(state.code),name:nextName});
+      try{state.peer?.destroy()}catch{}
+      state.calls.forEach(c=>{try{c.close()}catch{}});state.dataConns.forEach(c=>{try{c.close()}catch{}});
+      toast("Saliendo. La sala seguirá activa.");
+      setTimeout(()=>location.reload(),500);
+    }else location.reload();
+  }else{
+    try{state.hostConn?.send({type:"chat",name:"Sala",text:state.name+" salió de la sala.",id:state.peer.id})}catch{}
+    try{state.peer?.destroy()}catch{}
+    location.reload();
+  }
+};
+$("modalClose").onclick=()=>$("modal").classList.add("hidden");
+window.addEventListener("beforeunload",()=>{try{state.peer?.destroy()}catch{}});
+</script>
+</body>
+</html>
